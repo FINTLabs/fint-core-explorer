@@ -28,11 +28,11 @@ spec:
           image: fintlabsacr.azurecr.io/fint-core-exporter:build.${BUILD_NUMBER}_${GIT_COMMIT}
           resources:
             limits:
+              memory: "1000Mi"
+              cpu: "500m"
+            requests:
               memory: "500Mi"
               cpu: "250m"
-            requests:
-              memory: "250Mi"
-              cpu: "100m"
           ports:
             - containerPort: 8080
           readinessProbe:
