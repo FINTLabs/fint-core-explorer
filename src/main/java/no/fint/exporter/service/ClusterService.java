@@ -74,8 +74,8 @@ public class ClusterService {
 
             return response.getData();
 
-        } catch (ApiException e) {
-            log.error(metadata.getName(), e);
+        } catch (ApiException ex) {
+            log.error(metadata.getName(), ex.getResponseBody());
         }
 
         return null;
@@ -92,8 +92,8 @@ public class ClusterService {
     private List<V1Pod> getNamespacedPods(String label) {
         try {
             return inClusterClient.listNamespacedPod(ClusterService.NAMESPACE, null, null, null, null, label, null, null, null, null).getItems();
-        } catch (ApiException e) {
-            e.printStackTrace();
+        } catch (ApiException ex) {
+            log.error(ex.getResponseBody(), ex);
         }
 
         return Collections.emptyList();

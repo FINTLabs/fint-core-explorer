@@ -23,6 +23,7 @@ spec:
       labels:
         app: fint-core-exporter
     spec:
+      serviceAccountName: fint-core-exporter
       containers:
         - name: fint-core-exporter
           image: fintlabsacr.azurecr.io/fint-core-exporter:build.${BUILD_NUMBER}_${GIT_COMMIT}
