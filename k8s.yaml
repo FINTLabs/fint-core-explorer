@@ -27,6 +27,8 @@ spec:
       containers:
         - name: fint-core-exporter
           image: fintlabsacr.azurecr.io/fint-core-exporter:build.${BUILD_NUMBER}_${GIT_COMMIT}
+          env:
+            - { name: kubernetes.client, value: in-cluster }
           resources:
             limits:
               memory: "1000Mi"
