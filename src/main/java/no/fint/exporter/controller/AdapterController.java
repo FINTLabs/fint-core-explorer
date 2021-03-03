@@ -1,6 +1,5 @@
 package no.fint.exporter.controller;
 
-import io.kubernetes.client.openapi.ApiException;
 import no.fint.exporter.model.SseOrg;
 import no.fint.exporter.service.ClusterService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +18,7 @@ public class AdapterController {
     }
 
     @GetMapping
-    public Stream<SseOrg> getAdapters() throws ApiException {
+    public Stream<SseOrg> getAdapters() {
         return clusterService.getAdapters();
     }
 }

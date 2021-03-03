@@ -75,7 +75,7 @@ public class ClusterService {
             return response.getData();
 
         } catch (ApiException e) {
-            log.error(metadata.getName(), e.getMessage());
+            log.error(metadata.getName(), e);
         }
 
         return null;
