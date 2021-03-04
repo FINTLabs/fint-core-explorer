@@ -23,7 +23,7 @@ spec:
       labels:
         app: fint-core-explorer
     spec:
-      serviceAccountName: fint-core-explorer
+      serviceAccountName: fint-core-exporter
       containers:
         - name: fint-core-explorer
           image: fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}
