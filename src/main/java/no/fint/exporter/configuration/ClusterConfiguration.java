@@ -12,10 +12,21 @@ import java.io.FileReader;
 import java.io.IOException;
 
 @Configuration
-@ConditionalOnProperty(prefix = "kubernetes", name = "client", havingValue = "kube-config-file")
-public class KubeConfigFileConfiguration {
+public class ClusterConfiguration {
 
     @Bean
+    @ConditionalOnProperty(prefix = "kubernetes", name = "client", havingValue = "in-cluster")
+    public CoreV1Api inClusterClient() throws IOException {
+        ApiClient client = ClientBuilder.cluster().build();
+
+        CoreV1Api coreV1Api = new CoreV1Api();
+        coreV1Api.setApiClient(client);
+
+        return coreV1Api;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "kubernetes", name = "client", havingValue = "kube-config-file")
     public CoreV1Api kubeConfigFileClient() throws IOException {
         String kubeConfigPath = System.getenv("HOME") + "/.kube/config";
 

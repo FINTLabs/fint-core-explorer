@@ -1,7 +1,7 @@
 package no.fint.exporter.controller;
 
 import no.fint.exporter.model.SseOrg;
-import no.fint.exporter.service.ClusterService;
+import no.fint.exporter.service.ProviderService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,16 +9,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.stream.Stream;
 
 @RestController
-@RequestMapping("adapters")
-public class AdapterController {
-    private final ClusterService clusterService;
+@RequestMapping("provider")
+public class ProviderController {
+    private final ProviderService providerService;
 
-    public AdapterController(ClusterService clusterService) {
-        this.clusterService = clusterService;
+    public ProviderController(ProviderService providerService) {
+        this.providerService = providerService;
     }
 
-    @GetMapping
+    @GetMapping("adapters")
     public Stream<SseOrg> getAdapters() {
-        return clusterService.getAdapters();
+        return providerService.getAdapters();
     }
 }
