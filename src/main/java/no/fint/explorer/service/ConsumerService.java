@@ -1,7 +1,7 @@
-package no.fint.exporter.service;
+package no.fint.explorer.service;
 
 import lombok.extern.slf4j.Slf4j;
-import no.fint.exporter.repository.ClusterRepository;
+import no.fint.explorer.repository.ClusterRepository;
 import org.springframework.stereotype.Service;
 
 @Slf4j

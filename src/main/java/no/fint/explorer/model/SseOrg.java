@@ -1,4 +1,4 @@
-package no.fint.exporter.model;
+package no.fint.explorer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

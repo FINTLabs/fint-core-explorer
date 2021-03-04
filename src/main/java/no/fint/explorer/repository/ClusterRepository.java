@@ -1,4 +1,4 @@
-package no.fint.exporter.repository;
+package no.fint.explorer.repository;
 
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.ApiResponse;

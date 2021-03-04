@@ -1,7 +1,7 @@
-package no.fint.exporter.controller;
+package no.fint.explorer.controller;
 
-import no.fint.exporter.model.SseOrg;
-import no.fint.exporter.service.ProviderService;
+import no.fint.explorer.model.SseOrg;
+import no.fint.explorer.service.ProviderService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -5,5 +5,5 @@ RUN gradle --no-daemon build
 
 FROM gcr.io/distroless/java:8
 ENV JAVA_TOOL_OPTIONS -XX:+ExitOnOutOfMemoryError
-COPY --from=builder /home/gradle/build/libs/fint-core-exporter-*.jar /data/fint-core-exporter.jar
-CMD ["/data/fint-core-exporter.jar"]
+COPY --from=builder /home/gradle/build/libs/fint-core-explorer-*.jar /data/fint-core-explorer.jar
+CMD ["/data/fint-core-explorer.jar"]

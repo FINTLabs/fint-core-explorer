@@ -11,9 +11,9 @@ pipeline {
         stage('Publish') {
             when { branch 'main' }
             steps {
-                sh "docker tag ${GIT_COMMIT} fintlabsacr.azurecr.io/fint-core-exporter:build.${BUILD_NUMBER}_${GIT_COMMIT}"
+                sh "docker tag ${GIT_COMMIT} fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}"
                 withDockerRegistry([credentialsId: 'fintlabsacr.azurecr.io', url: 'https://fintlabsacr.azurecr.io']) {
-                    sh "docker push fintlabsacr.azurecr.io/fint-core-exporter:build.${BUILD_NUMBER}_${GIT_COMMIT}"
+                    sh "docker push fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}"
                 }
                 kubernetesDeploy configs: 'k8s.yaml', kubeconfigId: 'aks-beta-fint'
             }

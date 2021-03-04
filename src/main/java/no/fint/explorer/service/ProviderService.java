@@ -1,4 +1,4 @@
-package no.fint.exporter.service;
+package no.fint.explorer.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.extern.slf4j.Slf4j;
-import no.fint.exporter.model.SseOrg;
-import no.fint.exporter.repository.ClusterRepository;
+import no.fint.explorer.model.SseOrg;
+import no.fint.explorer.repository.ClusterRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
