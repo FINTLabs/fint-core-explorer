@@ -29,6 +29,7 @@ spec:
           image: fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}
           env:
             - { name: kubernetes.client, value: in-cluster }
+            - { name: TZ, value: Europe/Oslo }
           resources:
             limits:
               memory: "1000Mi"

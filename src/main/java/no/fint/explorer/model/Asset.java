@@ -2,12 +2,14 @@ package no.fint.explorer.model;
 
 import lombok.Data;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class Asset {
-    private String asset;
+    private String id;
+    private ZonedDateTime lastUpdated;
     private List<Component> components = new ArrayList<>();
 
     @Data

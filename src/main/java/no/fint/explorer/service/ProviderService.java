@@ -9,32 +9,47 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.SseOrg;
 import no.fint.explorer.repository.ClusterRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class ProviderService {
     private final ClusterRepository clusterRepository;
 
+    private final Set<Asset> assets = new ConcurrentSkipListSet<>(Comparator.comparing(Asset::getId));
+
     public ProviderService(ClusterRepository clusterRepository) {
         this.clusterRepository = clusterRepository;
     }
 
-    public Stream<Asset> getAssets() {
-        return clusterRepository.getProviders()
+    @Scheduled(initialDelay = 5000, fixedDelay = 300000)
+    public void run() {
+        clusterRepository.getProviders()
                 .stream()
                 .map(this::getSseOrgs)
                 .flatMap(List::stream)
                 .collect(Collectors.groupingBy(SseOrg::getOrgId))
                 .entrySet()
                 .stream()
-                .map(this::toAsset);
+                .map(this::toAsset)
+                .peek(assets::remove)
+                .forEach(assets::add);
+    }
+
+    public Set<Asset> getAssets() {
+        return assets;
+    }
+
+    public Optional<Asset> getAsset(String id) {
+        return assets.stream()
+                .filter(asset -> asset.getId().equals(id))
+                .findFirst();
     }
 
     private List<SseOrg> getSseOrgs(V1Service v1Service) {
@@ -57,7 +72,8 @@ public class ProviderService {
     private Asset toAsset(Map.Entry<String, List<SseOrg>> entry) {
         Asset asset = new Asset();
 
-        asset.setAsset(entry.getKey());
+        asset.setId(entry.getKey());
+        asset.setLastUpdated(ZonedDateTime.now());
 
         entry.getValue()
                 .stream()
