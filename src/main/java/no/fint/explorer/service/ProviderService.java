@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -25,7 +26,7 @@ public class ProviderService {
         this.clusterRepository = clusterRepository;
     }
 
-    public List<Asset> getAssets() {
+    public Stream<Asset> getAssets() {
         return clusterRepository.getProviders()
                 .stream()
                 .map(this::getSseOrgs)
@@ -33,8 +34,7 @@ public class ProviderService {
                 .collect(Collectors.groupingBy(SseOrg::getOrgId))
                 .entrySet()
                 .stream()
-                .map(this::toAsset)
-                .collect(Collectors.toList());
+                .map(this::toAsset);
     }
 
     private List<SseOrg> getSseOrgs(V1Service v1Service) {

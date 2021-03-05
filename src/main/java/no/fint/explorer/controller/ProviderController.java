@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("provider")
@@ -18,7 +19,7 @@ public class ProviderController {
     }
 
     @GetMapping("assets")
-    public List<Asset> getAssets() {
+    public Stream<Asset> getAssets() {
         return providerService.getAssets();
     }
 }
