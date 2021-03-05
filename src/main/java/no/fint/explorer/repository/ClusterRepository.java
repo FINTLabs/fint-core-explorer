@@ -25,42 +25,56 @@ public class ClusterRepository {
         this.coreV1Api = coreV1Api;
     }
 
-    public Optional<String> getApiResponse(V1ObjectMeta metadata, String endpoint) {
-        String pod = metadata.getName();
+    public Optional<ApiResponse<String>> getApiResponse(V1Service service, String endpoint) {
+        Optional<V1ObjectMeta> metadata = Optional.ofNullable(service.getMetadata());
 
-        String label = Optional.ofNullable(metadata.getLabels())
+        String pod = metadata
+                .map(V1ObjectMeta::getName)
+                .orElse(null);
+
+        Integer port = Optional.ofNullable(service.getSpec())
+                .map(V1ServiceSpec::getPorts)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(V1ServicePort::getPort)
+                .findFirst()
+                .orElse(null);
+
+        String label = metadata
+                .map(V1ObjectMeta::getLabels)
                 .map(labels -> labels.get(STACK))
                 .orElse(null);
 
-        if (pod == null || label == null) {
+        if (pod == null || port == null || label == null) {
             return Optional.empty();
         }
+
+        String name = pod + ":" + port;
 
         String path = label.replaceAll("-", "/") + endpoint;
 
         try {
-            return Optional.ofNullable(coreV1Api.connectGetNamespacedPodProxyWithPathWithHttpInfo(pod, NAMESPACE, path, null))
-                    .map(ApiResponse::getData);
+            return Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, NAMESPACE, path, null));
 
         } catch (ApiException ex) {
-            log.error("{} - {} - {}", metadata.getName(), endpoint, ex.getMessage());
+            log.error("{} - {} - {}", service.getMetadata().getName(), endpoint, ex.getMessage());
 
             return Optional.empty();
         }
     }
 
-    public List<V1Pod> getProviders() {
-        return getNamespacedPods(PROVIDER);
+    public List<V1Service> getProviders() {
+        return getNamespacedServices(PROVIDER);
     }
 
-    public List<V1Pod> getConsumers() {
-        return getNamespacedPods(CONSUMER);
+    public List<V1Service> getConsumers() {
+        return getNamespacedServices(CONSUMER);
     }
 
-    private List<V1Pod> getNamespacedPods(String label) {
+    private List<V1Service> getNamespacedServices(String label) {
         try {
-            return Optional.ofNullable(coreV1Api.listNamespacedPod(ClusterRepository.NAMESPACE, null, null, null, null, label, null, null, null, null))
-                    .map(V1PodList::getItems)
+            return Optional.ofNullable(coreV1Api.listNamespacedService(ClusterRepository.NAMESPACE, null, null, null, null, label, null, null, null, null))
+                    .map(V1ServiceList::getItems)
                     .orElseGet(Collections::emptyList);
         } catch (ApiException ex) {
             log.error("{} - {}", label, ex.getResponseBody());
