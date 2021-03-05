@@ -30,10 +30,10 @@ public class ProviderService {
                 .flatMap(List::stream);
     }
 
-    private List<SseOrg> getSseOrgs(V1Service service) {
+    private List<SseOrg> getSseOrgs(V1Service v1Service) {
         List<SseOrg> sseOrgs = new ArrayList<>();
 
-        clusterRepository.getApiResponse(service, "/provider/sse/clients")
+        clusterRepository.getApiResponse(v1Service, "/provider/sse/clients")
                 .map(ApiResponse::getData)
                 .ifPresent(data -> {
                     try {

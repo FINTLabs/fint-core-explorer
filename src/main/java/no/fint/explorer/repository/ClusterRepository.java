@@ -25,14 +25,14 @@ public class ClusterRepository {
         this.coreV1Api = coreV1Api;
     }
 
-    public Optional<ApiResponse<String>> getApiResponse(V1Service service, String endpoint) {
-        Optional<V1ObjectMeta> metadata = Optional.ofNullable(service.getMetadata());
+    public Optional<ApiResponse<String>> getApiResponse(V1Service v1Service, String endpoint) {
+        Optional<V1ObjectMeta> metadata = Optional.ofNullable(v1Service.getMetadata());
 
-        String pod = metadata
+        String service = metadata
                 .map(V1ObjectMeta::getName)
                 .orElse(null);
 
-        Integer port = Optional.ofNullable(service.getSpec())
+        Integer port = Optional.ofNullable(v1Service.getSpec())
                 .map(V1ServiceSpec::getPorts)
                 .orElseGet(Collections::emptyList)
                 .stream()
@@ -45,11 +45,11 @@ public class ClusterRepository {
                 .map(labels -> labels.get(STACK))
                 .orElse(null);
 
-        if (pod == null || port == null || label == null) {
+        if (service == null || port == null || label == null) {
             return Optional.empty();
         }
 
-        String name = pod + ":" + port;
+        String name = service + ":" + port;
 
         String path = label.replaceAll("-", "/") + endpoint;
 
@@ -57,7 +57,7 @@ public class ClusterRepository {
             return Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, NAMESPACE, path, null));
 
         } catch (ApiException ex) {
-            log.error("{} - {} - {}", service.getMetadata().getName(), endpoint, ex.getMessage());
+            log.error("{} - {} - {}", service, endpoint, ex.getMessage());
 
             return Optional.empty();
         }
