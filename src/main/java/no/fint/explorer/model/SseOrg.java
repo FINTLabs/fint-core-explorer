@@ -9,9 +9,9 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SseOrg {
-    private List<SseClient> clients = new ArrayList<>();
     private String orgId;
     private String path;
+    private List<SseClient> clients = new ArrayList<>();
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
