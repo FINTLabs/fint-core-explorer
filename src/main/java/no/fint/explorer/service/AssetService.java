@@ -1,6 +1,7 @@
 package no.fint.explorer.service;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fint.event.model.health.Health;
 import no.fint.explorer.factory.AssetFactory;
 import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.SseOrg;
@@ -32,7 +33,7 @@ public class AssetService {
         return assets.get(id);
     }
 
-    @Scheduled(initialDelay = 5000, fixedDelay = 600000)
+    @Scheduled(initialDelay = 5000, fixedDelay = 300000)
     public void update() {
         log.info("Updating assets");
 
@@ -54,7 +55,15 @@ public class AssetService {
         asset.getComponents()
                 .stream()
                 .filter(component -> !component.getClients().isEmpty())
-                .forEach(component -> consumerService.getConsumer(component.getId()).ifPresent(service ->
-                        component.setHealth(consumerService.getHealth(service, asset.getId()))));
+                .forEach(component -> consumerService.getConsumer(component.getId())
+                        .ifPresent(service -> {
+                            List<Health> health = consumerService.getHealth(service, asset.getId());
+
+                            if (health.isEmpty()) {
+                                return;
+                            }
+
+                            component.setHealth(health);
+                        }));
     }
 }
