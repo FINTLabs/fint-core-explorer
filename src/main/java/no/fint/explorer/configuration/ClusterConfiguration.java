@@ -18,6 +18,7 @@ public class ClusterConfiguration {
     @ConditionalOnProperty(prefix = "kubernetes", name = "client", havingValue = "in-cluster")
     public CoreV1Api inClusterClient() throws IOException {
         ApiClient client = ClientBuilder.cluster().build();
+        setDefaults(client);
 
         CoreV1Api coreV1Api = new CoreV1Api();
         coreV1Api.setApiClient(client);
@@ -31,10 +32,17 @@ public class ClusterConfiguration {
         String kubeConfigPath = System.getenv("HOME") + "/.kube/config";
 
         ApiClient client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
+        setDefaults(client);
 
         CoreV1Api coreV1Api = new CoreV1Api();
         coreV1Api.setApiClient(client);
 
         return coreV1Api;
+    }
+
+    private void setDefaults(ApiClient client) {
+        client.addDefaultHeader("x-client", "test");
+        client.setConnectTimeout(10000);
+        client.setReadTimeout(10000);
     }
 }

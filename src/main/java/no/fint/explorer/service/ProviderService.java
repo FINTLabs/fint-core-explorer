@@ -6,89 +6,48 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.models.V1Service;
 import lombok.extern.slf4j.Slf4j;
-import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.SseOrg;
 import no.fint.explorer.repository.ClusterRepository;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ProviderService {
     private final ClusterRepository clusterRepository;
 
-    private final Set<Asset> assets = new ConcurrentSkipListSet<>(Comparator.comparing(Asset::getId));
+    private final static String SSE_CLIENTS_ENDPOINT = "/provider/sse/clients";
+    private final static String PROVIDER_ROLE = "fint.role=provider";
+    private final static String PROVIDER_PREFIX = "provider-";
 
     public ProviderService(ClusterRepository clusterRepository) {
         this.clusterRepository = clusterRepository;
     }
 
-    @Scheduled(initialDelay = 5000, fixedDelay = 300000)
-    public void run() {
-        clusterRepository.getProviders()
-                .stream()
-                .map(this::getSseOrgs)
-                .flatMap(List::stream)
-                .collect(Collectors.groupingBy(SseOrg::getOrgId))
-                .entrySet()
-                .stream()
-                .map(this::toAsset)
-                .peek(assets::remove)
-                .forEach(assets::add);
+    public List<V1Service> getProviders() {
+        return clusterRepository.getNamespacedServices(PROVIDER_ROLE);
     }
 
-    public Set<Asset> getAssets() {
-        return assets;
+    public Optional<V1Service> getProvider(String id) {
+        return clusterRepository.getNamespacedService(PROVIDER_PREFIX + id);
     }
 
-    public Optional<Asset> getAsset(String id) {
-        return assets.stream()
-                .filter(asset -> asset.getId().equals(id))
-                .findFirst();
-    }
-
-    private List<SseOrg> getSseOrgs(V1Service v1Service) {
-        List<SseOrg> sseOrgs = new ArrayList<>();
-
-        clusterRepository.getApiResponse(v1Service, "/provider/sse/clients")
+    public List<SseOrg> getSseOrgs(V1Service v1Service) {
+        return clusterRepository.getApiResponse(v1Service, SSE_CLIENTS_ENDPOINT, null)
                 .map(ApiResponse::getData)
-                .ifPresent(data -> {
-                    try {
-                        sseOrgs.addAll(new ObjectMapper().readValue(data, new TypeReference<List<SseOrg>>() {
-                        }));
-                    } catch (JsonProcessingException ex) {
-                        log.error(ex.getMessage(), ex);
-                    }
-                });
-
-        return sseOrgs;
+                .map(this::getValue)
+                .orElseGet(Collections::emptyList);
     }
 
-    private Asset toAsset(Map.Entry<String, List<SseOrg>> entry) {
-        Asset asset = new Asset();
+    private List<SseOrg> getValue(String data) {
+        try {
+            return new ObjectMapper().readValue(data, new TypeReference<List<SseOrg>>() {
+            });
+        } catch (JsonProcessingException ex) {
+            log.error(ex.getMessage(), ex);
 
-        asset.setId(entry.getKey());
-        asset.setLastUpdated(ZonedDateTime.now());
-
-        entry.getValue()
-                .stream()
-                .map(this::toComponent)
-                .forEach(asset.getComponents()::add);
-
-        return asset;
-    }
-
-    private Asset.Component toComponent(SseOrg sseOrg) {
-        Asset.Component component = new Asset.Component();
-
-        component.setPath(sseOrg.getPath());
-        component.setClients(sseOrg.getClients());
-
-        return component;
+            return null;
+        }
     }
 }

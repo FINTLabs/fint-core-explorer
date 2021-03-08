@@ -1,6 +1,7 @@
 package no.fint.explorer.model;
 
 import lombok.Data;
+import no.fint.event.model.health.Health;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -14,7 +15,8 @@ public class Asset {
 
     @Data
     public static class Component {
-        private String path;
+        private String id;
         private List<SseOrg.SseClient> clients = new ArrayList<>();
+        private List<Health> health = new ArrayList<>();
     }
 }

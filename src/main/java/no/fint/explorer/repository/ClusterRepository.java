@@ -17,15 +17,13 @@ public class ClusterRepository {
     private final CoreV1Api coreV1Api;
 
     private final static String NAMESPACE = "default";
-    private final static String PROVIDER = "fint.role=provider";
-    private final static String CONSUMER = "fint.role=consumer";
     private final static String STACK = "fint.stack";
 
     public ClusterRepository(CoreV1Api coreV1Api) {
         this.coreV1Api = coreV1Api;
     }
 
-    public Optional<ApiResponse<String>> getApiResponse(V1Service v1Service, String endpoint) {
+    public Optional<ApiResponse<String>> getApiResponse(V1Service v1Service, String endpoint, String assetId) {
         Optional<V1ObjectMeta> metadata = Optional.ofNullable(v1Service.getMetadata());
 
         String service = metadata
@@ -53,25 +51,29 @@ public class ClusterRepository {
 
         String path = label.replaceAll("-", "/") + endpoint;
 
+        coreV1Api.getApiClient().addDefaultHeader("x-org-id", assetId);
+
         try {
             return Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, NAMESPACE, path, null));
 
         } catch (ApiException ex) {
-            log.error("{} - {} - {}", service, endpoint, ex.getMessage());
+            log.error("{} - {} - {} - {}", assetId, service, endpoint, ex.getMessage());
 
             return Optional.empty();
         }
     }
 
-    public List<V1Service> getProviders() {
-        return getNamespacedServices(PROVIDER);
+    public Optional<V1Service> getNamespacedService(String name) {
+        try {
+            return Optional.ofNullable(coreV1Api.readNamespacedService(name, ClusterRepository.NAMESPACE, null, null, null));
+        } catch (ApiException ex) {
+            log.error("{} - {}", name, ex.getResponseBody());
+
+            return Optional.empty();
+        }
     }
 
-    public List<V1Service> getConsumers() {
-        return getNamespacedServices(CONSUMER);
-    }
-
-    private List<V1Service> getNamespacedServices(String label) {
+    public List<V1Service> getNamespacedServices(String label) {
         try {
             return Optional.ofNullable(coreV1Api.listNamespacedService(ClusterRepository.NAMESPACE, null, null, null, null, label, null, null, null, null))
                     .map(V1ServiceList::getItems)
