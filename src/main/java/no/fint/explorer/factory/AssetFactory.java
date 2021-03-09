@@ -15,7 +15,6 @@ public final class AssetFactory {
         Asset asset = new Asset();
 
         asset.setId(entry.getKey());
-        asset.setLastUpdated(ZonedDateTime.now());
 
         entry.getValue()
                 .stream()
@@ -29,6 +28,7 @@ public final class AssetFactory {
         Asset.Component component = new Asset.Component();
 
         component.setId(getComponentId(sseOrg.getPath()));
+        component.setLastUpdated(ZonedDateTime.now());
         component.setClients(sseOrg.getClients());
 
         return component;
