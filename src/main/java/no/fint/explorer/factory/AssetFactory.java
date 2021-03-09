@@ -4,6 +4,7 @@ import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.SseOrg;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public final class AssetFactory {
         Asset.Component component = new Asset.Component();
 
         component.setId(getComponentId(sseOrg.getPath()));
-        component.setLastUpdated(ZonedDateTime.now());
+        component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
         component.setClients(sseOrg.getClients());
 
         return component;
