@@ -33,7 +33,7 @@ public class AssetService {
         return assets.get(id);
     }
 
-    @Scheduled(initialDelay = 5000, fixedDelay = 300000)
+    @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
     public void update() {
         log.info("Updating assets");
 
