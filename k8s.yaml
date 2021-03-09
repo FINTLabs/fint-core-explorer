@@ -29,6 +29,9 @@ spec:
           image: fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}
           env:
             - { name: kubernetes.client, value: in-cluster }
+            - { name: kubernetes.namespace, value: default }
+            - { name: kubernetes.connect-timeout, value: 15000 }
+            - { name: kubernetes.read-timeout, value: 15000 }
             - { name: TZ, value: Europe/Oslo }
           resources:
             limits:

@@ -48,22 +48,27 @@ public class AssetService {
                 .peek(this::addHealth)
                 .forEach(asset -> assets.put(asset.getId(), asset));
 
-        log.info("Finished updating assets");
+        log.info("Updated assets");
     }
 
     private void addHealth(Asset asset) {
-        asset.getComponents()
-                .stream()
-                .filter(component -> !component.getClients().isEmpty())
-                .forEach(component -> consumerService.getConsumer(component.getId())
-                        .ifPresent(service -> {
-                            List<Health> health = consumerService.getHealth(service, asset.getId());
+        asset.getComponents().forEach(component -> {
 
-                            if (health.isEmpty()) {
-                                return;
-                            }
+            if (component.getClients().isEmpty()) {
+                component.getHealth().clear();
+                return;
+            }
 
-                            component.setHealth(health);
-                        }));
+            consumerService.getConsumer(component.getId())
+                    .ifPresent(service -> {
+                        List<Health> health = consumerService.getHealth(service, asset.getId());
+
+                        if (health.isEmpty()) {
+                            return;
+                        }
+
+                        component.setHealth(health);
+                    });
+        });
     }
 }

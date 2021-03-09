@@ -4,6 +4,7 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,12 @@ import java.io.IOException;
 
 @Configuration
 public class ClusterConfiguration {
+
+    @Value("${kubernetes.connect-timeout}")
+    private int connectTimeout;
+
+    @Value("${kubernetes.read-timeout}")
+    private int readTimeout;
 
     @Bean
     @ConditionalOnProperty(prefix = "kubernetes", name = "client", havingValue = "in-cluster")
@@ -42,7 +49,7 @@ public class ClusterConfiguration {
 
     private void setDefaults(ApiClient client) {
         client.addDefaultHeader("x-client", "test");
-        client.setConnectTimeout(10000);
-        client.setReadTimeout(10000);
+        client.setConnectTimeout(connectTimeout);
+        client.setReadTimeout(readTimeout);
     }
 }

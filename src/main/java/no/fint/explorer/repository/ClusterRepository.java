@@ -5,6 +5,7 @@ import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -16,7 +17,9 @@ import java.util.Optional;
 public class ClusterRepository {
     private final CoreV1Api coreV1Api;
 
-    private final static String NAMESPACE = "default";
+    @Value("${kubernetes.namespace}")
+    private String namespace;
+
     private final static String STACK = "fint.stack";
 
     public ClusterRepository(CoreV1Api coreV1Api) {
@@ -54,7 +57,7 @@ public class ClusterRepository {
         coreV1Api.getApiClient().addDefaultHeader("x-org-id", assetId);
 
         try {
-            return Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, NAMESPACE, path, null));
+            return Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, namespace, path, null));
 
         } catch (ApiException ex) {
             log.error("{} - {} - {} - {}", assetId, service, endpoint, ex.getMessage());
@@ -65,7 +68,7 @@ public class ClusterRepository {
 
     public Optional<V1Service> getNamespacedService(String name) {
         try {
-            return Optional.ofNullable(coreV1Api.readNamespacedService(name, ClusterRepository.NAMESPACE, null, null, null));
+            return Optional.ofNullable(coreV1Api.readNamespacedService(name, namespace, null, null, null));
         } catch (ApiException ex) {
             log.error("{} - {}", name, ex.getResponseBody());
 
@@ -75,7 +78,7 @@ public class ClusterRepository {
 
     public List<V1Service> getNamespacedServices(String label) {
         try {
-            return Optional.ofNullable(coreV1Api.listNamespacedService(ClusterRepository.NAMESPACE, null, null, null, null, label, null, null, null, null))
+            return Optional.ofNullable(coreV1Api.listNamespacedService(namespace, null, null, null, null, label, null, null, null, null))
                     .map(V1ServiceList::getItems)
                     .orElseGet(Collections::emptyList);
         } catch (ApiException ex) {
