@@ -33,7 +33,7 @@ spec:
             - { name: kubernetes.connect-timeout, value: 15000 }
             - { name: kubernetes.read-timeout, value: 15000 }
             - { name: kubernetes.initial-delay, value: 10000 }
-            - { name: kubernetes.fixed-delay, value: 600000 }
+            - { name: kubernetes.fixed-delay, value: 300000 }
             - { name: management.endpoints.web.exposure.include, value: "info, health, metrics, prometheus" }
             - { name: TZ, value: Europe/Oslo }
           resources:

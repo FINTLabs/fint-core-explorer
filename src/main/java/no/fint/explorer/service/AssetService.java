@@ -35,7 +35,7 @@ public class AssetService {
 
     @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
     public void update() {
-        log.info("Updating assets");
+        log.info("Updating...");
 
         providerService.getProviders()
                 .stream()
@@ -47,8 +47,6 @@ public class AssetService {
                 .map(AssetFactory::toAsset)
                 .peek(this::addHealth)
                 .forEach(asset -> assets.put(asset.getId(), asset));
-
-        log.info("Updated assets");
     }
 
     private void addHealth(Asset asset) {

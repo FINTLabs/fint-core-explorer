@@ -4,4 +4,4 @@ kubernetes:
   connect-timeout: 15000
   read-timeout: 15000
   initial-delay: 10000
-  fixed-delay: 600000
+  fixed-delay: 300000
