@@ -26,6 +26,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     implementation 'io.kubernetes:client-java:10.0.0'
 
     implementation 'no.fint:fint-event-model:3.0.0'
