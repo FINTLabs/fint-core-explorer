@@ -1,13 +1,19 @@
 package no.fint.explorer.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import no.fint.event.model.Event;
+import no.fint.event.model.health.Health;
+import no.fint.explorer.constants.Endpoints;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -24,6 +30,8 @@ public class ClusterRepository {
     private String namespace;
 
     private final static String STACK = "fint.stack";
+    private final static String HEALTHY = "APPLICATION_HEALTHY";
+    private final static String UNHEALTHY = "APPLICATION_UNHEALTHY";
 
     public ClusterRepository(CoreV1Api coreV1Api, MeterRegistry meterRegistry) {
         this.coreV1Api = coreV1Api;
@@ -63,14 +71,14 @@ public class ClusterRepository {
         try {
             Optional<ApiResponse<String>> apiResponse = Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, namespace, path, null));
 
-            apiResponse.ifPresent(response -> updateCounter(asset, service, endpoint, null));
+            apiResponse.ifPresent(response -> updateMetrics(asset, service, endpoint, response, null));
 
             return apiResponse;
 
         } catch (ApiException ex) {
             log.error("{} - {} - {} - {}", asset, service, endpoint, ex.getMessage());
 
-            updateCounter(asset, service, endpoint, ex);
+            updateMetrics(asset, service, endpoint, null, ex);
 
             return Optional.empty();
         }
@@ -98,17 +106,52 @@ public class ClusterRepository {
         }
     }
 
-    private void updateCounter(String asset, String service, String endpoint, ApiException apiException) {
-        Optional<ApiException> exception = Optional.ofNullable(apiException);
+    private void updateMetrics(String asset, String service, String endpoint, ApiResponse<String> response, ApiException exception) {
+        if (!service.startsWith("consumer")) {
+            return;
+        }
 
-        if (service.startsWith("consumer")) {
-            meterRegistry.counter("fint.consumer",
-                    "service", service,
+        String component = StringUtils.substringAfter(service, "-");
+
+        if (endpoint.equals(Endpoints.ADMIN_HEALTH_ENDPOINT)) {
+            meterRegistry.counter("fint.core.health",
+                    "component", component,
                     "asset", asset,
-                    "endpoint", endpoint,
-                    "status", exception.map(ApiException::getCode).map(String::valueOf).orElse(HttpStatus.OK.name()),
-                    "exception", exception.map(ApiException::getCause).map(Throwable::getClass).map(Class::getSimpleName).orElse("NONE"))
+                    "status", getStatus(response),
+                    "exception", getException(exception))
                     .increment();
+        }
+    }
+
+    private String getException(ApiException exception) {
+        return Optional.ofNullable(exception)
+                .map(ApiException::getCause)
+                .map(Throwable::getClass)
+                .map(Class::getSimpleName)
+                .orElse("NONE");
+    }
+
+    private String getStatus(ApiResponse<String> response) {
+        return Optional.ofNullable(response)
+                .map(ApiResponse::getData)
+                .map(this::getValue)
+                .map(Event::getData)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(Health::getStatus)
+                .filter(HEALTHY::equals)
+                .findFirst()
+                .orElse(UNHEALTHY);
+    }
+
+    private Event<Health> getValue(String data) {
+        try {
+            return new ObjectMapper().readValue(data, new TypeReference<Event<Health>>() {
+            });
+        } catch (JsonProcessingException ex) {
+            log.error(ex.getMessage(), ex);
+
+            return null;
         }
     }
 }

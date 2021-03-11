@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.models.V1Service;
 import lombok.extern.slf4j.Slf4j;
+import no.fint.explorer.constants.Endpoints;
 import no.fint.explorer.model.SseOrg;
 import no.fint.explorer.repository.ClusterRepository;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,6 @@ import java.util.*;
 public class ProviderService {
     private final ClusterRepository clusterRepository;
 
-    private final static String SSE_CLIENTS_ENDPOINT = "/provider/sse/clients";
     private final static String PROVIDER_ROLE = "fint.role=provider";
     private final static String PROVIDER_PREFIX = "provider-";
 
@@ -34,7 +34,7 @@ public class ProviderService {
     }
 
     public List<SseOrg> getSseOrgs(V1Service v1Service) {
-        return clusterRepository.getApiResponse(v1Service, SSE_CLIENTS_ENDPOINT, null)
+        return clusterRepository.getApiResponse(v1Service, Endpoints.SSE_CLIENTS_ENDPOINT, null)
                 .map(ApiResponse::getData)
                 .map(this::getValue)
                 .orElseGet(Collections::emptyList);

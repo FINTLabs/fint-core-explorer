@@ -8,6 +8,7 @@ import io.kubernetes.client.openapi.models.V1Service;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
+import no.fint.explorer.constants.Endpoints;
 import no.fint.explorer.repository.ClusterRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,6 @@ import java.util.Optional;
 public class ConsumerService {
     private final ClusterRepository clusterRepository;
 
-    private final static String HEALTH_ENDPOINT = "/admin/health";
     private final static String CONSUMER_ROLE = "fint.role=consumer";
     private final static String CONSUMER_PREFIX = "consumer-";
 
@@ -37,7 +37,7 @@ public class ConsumerService {
     }
 
     public List<Health> getHealth(V1Service v1Service, String assetId) {
-        return clusterRepository.getApiResponse(v1Service, HEALTH_ENDPOINT, assetId)
+        return clusterRepository.getApiResponse(v1Service, Endpoints.ADMIN_HEALTH_ENDPOINT, assetId)
                 .map(ApiResponse::getData)
                 .map(this::getValue)
                 .map(Event::getData)
