@@ -7,7 +7,9 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
+import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
@@ -16,9 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -120,6 +121,10 @@ public class ClusterRepository {
                     "exception", getException(exception),
                     "status", getStatus(response))
                     .increment();
+
+            List<Tag> tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component));
+
+            meterRegistry.gauge("fint.core.health", tags, getStatus(response).equals(HEALTHY) ? 1 : 0);
         }
     }
 
