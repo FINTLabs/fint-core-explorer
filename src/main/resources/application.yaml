@@ -1,7 +1,7 @@
 kubernetes:
   client: kube-config-file
   namespace: default
-  connect-timeout: 15000
-  read-timeout: 15000
+  connect-timeout: 30000
+  read-timeout: 30000
   initial-delay: 10000
   fixed-delay: 300000
