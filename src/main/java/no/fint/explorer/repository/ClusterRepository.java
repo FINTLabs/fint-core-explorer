@@ -69,16 +69,16 @@ public class ClusterRepository {
         coreV1Api.getApiClient().addDefaultHeader("x-org-id", asset);
 
         try {
-            Optional<ApiResponse<String>> apiResponse = Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, namespace, path, null));
+            Optional<ApiResponse<String>> response = Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, namespace, path, null));
 
-            apiResponse.ifPresent(response -> updateMetrics(asset, service, endpoint, response, null));
+            updateMetrics(asset, service, endpoint, response, null);
 
-            return apiResponse;
+            return response;
 
         } catch (ApiException ex) {
             log.error("{} - {} - {} - {}", asset, service, endpoint, ex.getMessage());
 
-            updateMetrics(asset, service, endpoint, null, ex);
+            updateMetrics(asset, service, endpoint, Optional.empty(), ex);
 
             return Optional.empty();
         }
@@ -106,7 +106,7 @@ public class ClusterRepository {
         }
     }
 
-    private void updateMetrics(String asset, String service, String endpoint, ApiResponse<String> response, ApiException exception) {
+    private void updateMetrics(String asset, String service, String endpoint, Optional<ApiResponse<String>> response, ApiException exception) {
         if (!service.startsWith("consumer")) {
             return;
         }
@@ -117,8 +117,8 @@ public class ClusterRepository {
             meterRegistry.counter("fint.core.health",
                     "component", component,
                     "asset", asset,
-                    "status", getStatus(response),
-                    "exception", getException(exception))
+                    "exception", getException(exception),
+                    "status", getStatus(response))
                     .increment();
         }
     }
@@ -131,8 +131,8 @@ public class ClusterRepository {
                 .orElse("NONE");
     }
 
-    private String getStatus(ApiResponse<String> response) {
-        return Optional.ofNullable(response)
+    private String getStatus(Optional<ApiResponse<String>> response) {
+        return response
                 .map(ApiResponse::getData)
                 .map(this::getValue)
                 .map(Event::getData)
