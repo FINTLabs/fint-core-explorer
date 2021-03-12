@@ -120,8 +120,8 @@ public class ClusterRepository {
                     "asset", asset,
                     "exception", getException(exception),
                     "status", getStatus(response))
-                    .increment();
-
+                    .count();
+            
             List<Tag> tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component));
 
             meterRegistry.gauge("fint.core.health", tags, getStatus(response).equals(HEALTHY) ? 1 : 0);
