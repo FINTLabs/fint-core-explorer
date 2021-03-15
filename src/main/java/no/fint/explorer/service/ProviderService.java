@@ -19,7 +19,7 @@ public class ProviderService {
     private final ClusterRepository clusterRepository;
 
     private final static String PROVIDER_ROLE = "fint.role=provider";
-    private final static String PROVIDER_PREFIX = "provider-";
+    public final static String PROVIDER_PREFIX = "provider-";
 
     public ProviderService(ClusterRepository clusterRepository) {
         this.clusterRepository = clusterRepository;

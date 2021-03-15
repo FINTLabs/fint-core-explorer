@@ -22,7 +22,7 @@ public class ConsumerService {
     private final ClusterRepository clusterRepository;
 
     private final static String CONSUMER_ROLE = "fint.role=consumer";
-    private final static String CONSUMER_PREFIX = "consumer-";
+    public final static String CONSUMER_PREFIX = "consumer-";
 
     public ConsumerService(ClusterRepository clusterRepository) {
         this.clusterRepository = clusterRepository;

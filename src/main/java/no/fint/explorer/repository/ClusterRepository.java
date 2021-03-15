@@ -14,12 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
 import no.fint.explorer.constants.Endpoints;
+import no.fint.explorer.service.ConsumerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -33,6 +33,8 @@ public class ClusterRepository {
     private final static String STACK = "fint.stack";
     private final static String HEALTHY = "APPLICATION_HEALTHY";
     private final static String UNHEALTHY = "APPLICATION_UNHEALTHY";
+    private final static String HEALTH_METRIC = "fint.core.health";
+
 
     public ClusterRepository(CoreV1Api coreV1Api, MeterRegistry meterRegistry) {
         this.coreV1Api = coreV1Api;
@@ -108,23 +110,19 @@ public class ClusterRepository {
     }
 
     private void updateMetrics(String asset, String service, String endpoint, Optional<ApiResponse<String>> response, ApiException exception) {
-        if (!service.startsWith("consumer")) {
+        if (!service.startsWith(ConsumerService.CONSUMER_PREFIX)) {
             return;
         }
 
         String component = StringUtils.substringAfter(service, "-");
 
-        if (endpoint.equals(Endpoints.ADMIN_HEALTH_ENDPOINT)) {
-            meterRegistry.counter("fint.core.health",
-                    "component", component,
-                    "asset", asset,
-                    "exception", getException(exception),
-                    "status", getStatus(response))
-                    .count();
-            
-            List<Tag> tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component));
+        List<Tag> tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component),
+                new ImmutableTag("exception", getException(exception)), new ImmutableTag("status", getStatus(response)));
 
-            meterRegistry.gauge("fint.core.health", tags, getStatus(response).equals(HEALTHY) ? 1 : 0);
+        if (endpoint.equals(Endpoints.ADMIN_HEALTH_ENDPOINT)) {
+            meterRegistry.gauge(HEALTH_METRIC, tags, getStatus(response).equals(HEALTHY) ? 1 : 0);
+
+            meterRegistry.counter(HEALTH_METRIC, tags).increment();
         }
     }
 
