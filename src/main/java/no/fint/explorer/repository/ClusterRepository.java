@@ -116,12 +116,13 @@ public class ClusterRepository {
 
         String component = StringUtils.substringAfter(service, "-");
 
-        List<Tag> tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component),
-                new ImmutableTag("exception", getException(exception)), new ImmutableTag("status", getStatus(response)));
+        List<Tag> tags;
 
         if (endpoint.equals(Endpoints.ADMIN_HEALTH_ENDPOINT)) {
+            tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component));
             meterRegistry.gauge(HEALTH_METRIC, tags, getStatus(response).equals(HEALTHY) ? 1 : 0);
 
+            tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component), new ImmutableTag("exception", getException(exception)), new ImmutableTag("status", getStatus(response)));
             meterRegistry.counter(HEALTH_METRIC, tags).increment();
         }
     }
