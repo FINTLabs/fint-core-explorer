@@ -8,6 +8,8 @@ import no.fint.explorer.model.SseOrg;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
@@ -51,6 +53,8 @@ public class AssetService {
 
     private void addHealth(Asset asset) {
         asset.getComponents().forEach(component -> {
+
+            component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
 
             if (component.getClients().isEmpty()) {
                 component.getHealth().clear();

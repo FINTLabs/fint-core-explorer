@@ -31,7 +31,6 @@ public final class AssetFactory {
 
         component.setId(getComponentId(sseOrg.getPath()));
         component.setTitle(getComponentTitle(sseOrg.getPath()));
-        component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
         component.setClients(sseOrg.getClients());
 
         return component;
