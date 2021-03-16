@@ -15,6 +15,7 @@ public class Asset {
     @Data
     public static class Component {
         private String id;
+        private String title;
         private ZonedDateTime lastUpdated;
         private List<SseOrg.SseClient> clients = new ArrayList<>();
         private List<Health> health = new ArrayList<>();

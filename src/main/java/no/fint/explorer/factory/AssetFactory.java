@@ -2,6 +2,7 @@ package no.fint.explorer.factory;
 
 import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.SseOrg;
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.ZoneId;
@@ -29,6 +30,7 @@ public final class AssetFactory {
         Asset.Component component = new Asset.Component();
 
         component.setId(getComponentId(sseOrg.getPath()));
+        component.setTitle(getComponentTitle(sseOrg.getPath()));
         component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
         component.setClients(sseOrg.getClients());
 
@@ -37,5 +39,11 @@ public final class AssetFactory {
 
     private static String getComponentId(String path) {
         return StringUtils.substringBetween(path, "/", PROVIDER).replaceAll("/", "-");
+    }
+
+    private static String getComponentTitle(String path) {
+        String title = StringUtils.substringBetween(path, "/", PROVIDER).replaceAll("/", " ");
+
+        return WordUtils.capitalize(title);
     }
 }
