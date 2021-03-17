@@ -7,6 +7,8 @@ import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.SseOrg;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -27,12 +29,12 @@ public class AssetService {
         this.consumerService = consumerService;
     }
 
-    public Collection<Asset> getAssets() {
-        return assets.values();
+    public Flux<Asset> getAssets() {
+        return Flux.fromIterable(assets.values());
     }
 
-    public Asset getAsset(String id) {
-        return assets.get(id);
+    public Mono<Asset> getAsset(String id) {
+        return Mono.justOrEmpty(assets.get(id));
     }
 
     @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
