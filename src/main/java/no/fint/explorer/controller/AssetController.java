@@ -1,17 +1,13 @@
 package no.fint.explorer.controller;
 
 import no.fint.explorer.exception.AssetNotFoundException;
-import no.fint.explorer.exception.ComponentNotFoundException;
 import no.fint.explorer.model.Asset;
 import no.fint.explorer.service.AssetService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("assets")

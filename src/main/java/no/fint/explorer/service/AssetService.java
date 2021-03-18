@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.health.Health;
 import no.fint.explorer.factory.AssetFactory;
 import no.fint.explorer.model.Asset;
+import no.fint.explorer.model.CacheEntry;
 import no.fint.explorer.model.SseOrg;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,12 +51,12 @@ public class AssetService {
                 .entrySet()
                 .stream()
                 .map(AssetFactory::toAsset)
-                .peek(this::addHealth)
+                .peek(addHealthAndCache())
                 .forEach(asset -> assets.put(asset.getId(), asset));
     }
 
-    private void addHealth(Asset asset) {
-        asset.getComponents().forEach(component -> {
+    private Consumer<Asset> addHealthAndCache() {
+        return asset -> asset.getComponents().forEach(component -> {
 
             component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
 
@@ -72,6 +74,14 @@ public class AssetService {
                         }
 
                         component.setHealth(health);
+
+                        List<CacheEntry> cache = consumerService.getCache(service, asset.getId());
+
+                        if (cache.isEmpty()) {
+                            return;
+                        }
+
+                        component.setCache(cache);
                     });
         });
     }

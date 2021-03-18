@@ -19,5 +19,6 @@ public class Asset {
         private ZonedDateTime lastUpdated;
         private List<SseOrg.SseClient> clients = new ArrayList<>();
         private List<Health> health = new ArrayList<>();
+        private List<CacheEntry> cache = new ArrayList<>();
     }
 }

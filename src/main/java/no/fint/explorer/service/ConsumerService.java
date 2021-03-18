@@ -9,12 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
 import no.fint.explorer.constants.Endpoints;
+import no.fint.explorer.model.CacheEntry;
 import no.fint.explorer.repository.ClusterRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,12 +39,32 @@ public class ConsumerService {
     public List<Health> getHealth(V1Service v1Service, String assetId) {
         return clusterRepository.getApiResponse(v1Service, Endpoints.ADMIN_HEALTH_ENDPOINT, assetId)
                 .map(ApiResponse::getData)
-                .map(this::getValue)
+                .map(this::getHealthValue)
                 .map(Event::getData)
                 .orElseGet(Collections::emptyList);
     }
 
-    private Event<Health> getValue(String data) {
+    public List<CacheEntry> getCache(V1Service v1Service, String assetId) {
+        return clusterRepository.getApiResponse(v1Service, Endpoints.ADMIN_CACHE_STATUS_ENDPOINT, null)
+                .map(ApiResponse::getData)
+                .map(this::getCacheValues)
+                .map(cacheValues -> cacheValues.get(assetId))
+                .map(this::getCacheEntries)
+                .orElseGet(Collections::emptyList);
+    }
+
+    private Map<String, Map<String, CacheEntry>> getCacheValues(String data) {
+        try {
+            return new ObjectMapper().readValue(data, new TypeReference<Map<String, Map<String, CacheEntry>>>() {
+            });
+        } catch (JsonProcessingException ex) {
+            log.error(ex.getMessage(), ex);
+
+            return null;
+        }
+    }
+
+    private Event<Health> getHealthValue(String data) {
         try {
             return new ObjectMapper().readValue(data, new TypeReference<Event<Health>>() {
             });
@@ -53,5 +73,16 @@ public class ConsumerService {
 
             return null;
         }
+    }
+
+    private List<CacheEntry> getCacheEntries(Map<String, CacheEntry> entries) {
+        return entries.entrySet().stream()
+                .map(entry -> {
+                    CacheEntry cacheEntry = entry.getValue();
+                    cacheEntry.setClazz(entry.getKey());
+
+                    return cacheEntry;
+                })
+                .collect(Collectors.toList());
     }
 }
