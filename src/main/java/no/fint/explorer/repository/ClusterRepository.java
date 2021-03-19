@@ -13,7 +13,7 @@ import io.micrometer.core.instrument.Tag;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
-import no.fint.explorer.constants.Endpoints;
+import no.fint.explorer.Endpoints;
 import no.fint.explorer.service.ConsumerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,14 +27,13 @@ public class ClusterRepository {
     private final CoreV1Api coreV1Api;
     private final MeterRegistry meterRegistry;
 
-    @Value("${kubernetes.namespace}")
-    private String namespace;
-
     private final static String STACK = "fint.stack";
     private final static String HEALTHY = "APPLICATION_HEALTHY";
     private final static String UNHEALTHY = "APPLICATION_UNHEALTHY";
     private final static String HEALTH_METRIC = "fint.core.health";
 
+    @Value("${kubernetes.namespace}")
+    private String namespace;
 
     public ClusterRepository(CoreV1Api coreV1Api, MeterRegistry meterRegistry) {
         this.coreV1Api = coreV1Api;

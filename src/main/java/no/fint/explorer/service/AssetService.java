@@ -6,6 +6,7 @@ import no.fint.explorer.factory.AssetFactory;
 import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.CacheEntry;
 import no.fint.explorer.model.SseOrg;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -40,6 +41,7 @@ public class AssetService {
     }
 
     @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
+    @CacheEvict(value = {"consumers", "caches"}, allEntries = true)
     public void update() {
         log.info("Updating...");
 
@@ -51,38 +53,39 @@ public class AssetService {
                 .entrySet()
                 .stream()
                 .map(AssetFactory::toAsset)
-                .peek(addHealthAndCache())
+                .peek(updateHealthAndCache())
                 .forEach(asset -> assets.put(asset.getId(), asset));
     }
 
-    private Consumer<Asset> addHealthAndCache() {
+    private Consumer<Asset> updateHealthAndCache() {
         return asset -> asset.getComponents().forEach(component -> {
-
             component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
 
             if (component.getClients().isEmpty()) {
-                component.getHealth().clear();
                 return;
             }
 
-            consumerService.getConsumer(component.getId())
-                    .ifPresent(service -> {
-                        List<Health> health = consumerService.getHealth(service, asset.getId());
+            consumerService.getConsumer(component.getId()).ifPresent(service -> {
+                List<Health> health = consumerService.getHealth(service, asset.getId());
 
-                        if (health.isEmpty()) {
-                            return;
-                        }
+                component.setHealth(health);
 
-                        component.setHealth(health);
+                List<CacheEntry> cache = consumerService.getCache(service)
+                        .getOrDefault(asset.getId(), Collections.emptyMap())
+                        .entrySet()
+                        .stream()
+                        .map(this::updateCacheEntry)
+                        .collect(Collectors.toList());
 
-                        List<CacheEntry> cache = consumerService.getCache(service, asset.getId());
-
-                        if (cache.isEmpty()) {
-                            return;
-                        }
-
-                        component.setCache(cache);
-                    });
+                component.setCache(cache);
+            });
         });
+    }
+
+    private CacheEntry updateCacheEntry(Map.Entry<String, CacheEntry> cacheEntry) {
+        CacheEntry entry = cacheEntry.getValue();
+        entry.setName(cacheEntry.getKey());
+
+        return entry;
     }
 }

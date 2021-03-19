@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.models.V1Service;
 import lombok.extern.slf4j.Slf4j;
-import no.fint.explorer.constants.Endpoints;
+import no.fint.explorer.Endpoints;
 import no.fint.explorer.model.SseOrg;
 import no.fint.explorer.repository.ClusterRepository;
 import org.springframework.stereotype.Service;

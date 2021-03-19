@@ -1,4 +1,4 @@
-package no.fint.explorer.constants;
+package no.fint.explorer;
 
 public final class Endpoints {
     public final static String SSE_CLIENTS_ENDPOINT = "/provider/sse/clients";

@@ -8,13 +8,13 @@ import io.kubernetes.client.openapi.models.V1Service;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
-import no.fint.explorer.constants.Endpoints;
+import no.fint.explorer.Endpoints;
 import no.fint.explorer.model.CacheEntry;
 import no.fint.explorer.repository.ClusterRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,6 +32,7 @@ public class ConsumerService {
         return clusterRepository.getNamespacedServices(CONSUMER_ROLE);
     }
 
+    @Cacheable(value = "consumers")
     public Optional<V1Service> getConsumer(String id) {
         return clusterRepository.getNamespacedService(CONSUMER_PREFIX + id);
     }
@@ -44,16 +45,15 @@ public class ConsumerService {
                 .orElseGet(Collections::emptyList);
     }
 
-    public List<CacheEntry> getCache(V1Service v1Service, String assetId) {
+    @Cacheable(value = "caches")
+    public Map<String, Map<String, CacheEntry>> getCache(V1Service v1Service) {
         return clusterRepository.getApiResponse(v1Service, Endpoints.ADMIN_CACHE_STATUS_ENDPOINT, null)
                 .map(ApiResponse::getData)
-                .map(this::getCacheValues)
-                .map(cacheValues -> cacheValues.get(assetId))
-                .map(this::getCacheEntries)
-                .orElseGet(Collections::emptyList);
+                .map(this::getCacheValue)
+                .orElseGet(Collections::emptyMap);
     }
 
-    private Map<String, Map<String, CacheEntry>> getCacheValues(String data) {
+    private Map<String, Map<String, CacheEntry>> getCacheValue(String data) {
         try {
             return new ObjectMapper().readValue(data, new TypeReference<Map<String, Map<String, CacheEntry>>>() {
             });
@@ -73,16 +73,5 @@ public class ConsumerService {
 
             return null;
         }
-    }
-
-    private List<CacheEntry> getCacheEntries(Map<String, CacheEntry> entries) {
-        return entries.entrySet().stream()
-                .map(entry -> {
-                    CacheEntry cacheEntry = entry.getValue();
-                    cacheEntry.setClazz(entry.getKey());
-
-                    return cacheEntry;
-                })
-                .collect(Collectors.toList());
     }
 }
