@@ -9,7 +9,6 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
 import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tag;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
@@ -73,14 +72,14 @@ public class ClusterRepository {
         try {
             Optional<ApiResponse<String>> response = Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, namespace, path, null));
 
-            updateMetrics(asset, service, endpoint, response, null);
+            updateMetrics(asset, service, endpoint, response);
 
             return response;
 
         } catch (ApiException ex) {
             log.error("{} - {} - {} - {}", asset, service, endpoint, ex.getMessage());
 
-            updateMetrics(asset, service, endpoint, Optional.empty(), ex);
+            updateMetrics(asset, service, endpoint, Optional.empty());
 
             return Optional.empty();
         }
@@ -108,30 +107,18 @@ public class ClusterRepository {
         }
     }
 
-    private void updateMetrics(String asset, String service, String endpoint, Optional<ApiResponse<String>> response, ApiException exception) {
+    private void updateMetrics(String asset, String service, String endpoint, Optional<ApiResponse<String>> response) {
         if (!service.startsWith(ConsumerService.CONSUMER_PREFIX)) {
             return;
         }
 
         String component = StringUtils.substringAfter(service, "-");
 
-        List<Tag> tags;
-
         if (endpoint.equals(Endpoints.ADMIN_HEALTH_ENDPOINT)) {
-            tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component));
-            meterRegistry.gauge(HEALTH_METRIC, tags, getStatus(response).equals(HEALTHY) ? 1 : 0);
-
-            tags = Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component), new ImmutableTag("exception", getException(exception)), new ImmutableTag("status", getStatus(response)));
-            meterRegistry.counter(HEALTH_METRIC, tags).increment();
+            meterRegistry.gauge(HEALTH_METRIC,
+                    Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component)),
+                    getStatus(response).equals(HEALTHY) ? 1 : 0);
         }
-    }
-
-    private String getException(ApiException exception) {
-        return Optional.ofNullable(exception)
-                .map(ApiException::getCause)
-                .map(Throwable::getClass)
-                .map(Class::getSimpleName)
-                .orElse("NONE");
     }
 
     private String getStatus(Optional<ApiResponse<String>> response) {
@@ -156,5 +143,13 @@ public class ClusterRepository {
 
             return null;
         }
+    }
+
+    private String getException(ApiException exception) {
+        return Optional.ofNullable(exception)
+                .map(ApiException::getCause)
+                .map(Throwable::getClass)
+                .map(Class::getSimpleName)
+                .orElse("NONE");
     }
 }
