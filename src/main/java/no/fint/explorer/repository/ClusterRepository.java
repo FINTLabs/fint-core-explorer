@@ -7,8 +7,8 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
-import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Repository
@@ -33,6 +35,8 @@ public class ClusterRepository {
 
     @Value("${kubernetes.namespace}")
     private String namespace;
+
+    private final Map<String, AtomicInteger> gauges = new ConcurrentHashMap<>();
 
     public ClusterRepository(CoreV1Api coreV1Api, MeterRegistry meterRegistry) {
         this.coreV1Api = coreV1Api;
@@ -115,9 +119,18 @@ public class ClusterRepository {
         String component = StringUtils.substringAfter(service, "-");
 
         if (endpoint.equals(Endpoints.ADMIN_HEALTH_ENDPOINT)) {
-            meterRegistry.gauge(HEALTH_METRIC,
-                    Arrays.asList(new ImmutableTag("asset", asset), new ImmutableTag("component", component)),
-                    getStatus(response).equals(HEALTHY) ? 1 : 0);
+            String gauge = asset.concat(component);
+
+            int status = getStatus(response).equals(HEALTHY) ? 1 : 0;
+
+            gauges.computeIfPresent(gauge, (key, value) -> {
+                value.set(status);
+                return value;
+            });
+
+            gauges.putIfAbsent(gauge, meterRegistry.gauge(HEALTH_METRIC,
+                    Arrays.asList(Tag.of("asset", asset), Tag.of("component", component)),
+                    new AtomicInteger(status)));
         }
     }
 
