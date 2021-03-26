@@ -16,6 +16,7 @@ pipeline {
                     sh "docker push fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}"
                 }
                 kubernetesDeploy configs: 'k8s.yaml', kubeconfigId: 'aks-beta-fint'
+                kubernetesDeploy configs: 'k8s.yaml', kubeconfigId: 'aks-api-fint'
             }
         }
     }

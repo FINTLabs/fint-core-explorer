@@ -27,17 +27,17 @@ spec:
         prometheus.io/port: "8080"
         prometheus.io/path: "actuator/prometheus"
     spec:
-      serviceAccountName: fint-core-exporter
+      serviceAccountName: fint-core-explorer
       containers:
         - name: fint-core-explorer
           image: fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}
           env:
             - { name: kubernetes.client, value: in-cluster }
             - { name: kubernetes.namespace, value: default }
-            - { name: kubernetes.connect-timeout, value: 30000 }
-            - { name: kubernetes.read-timeout, value: 30000 }
-            - { name: kubernetes.initial-delay, value: 10000 }
-            - { name: kubernetes.fixed-delay, value: 300000 }
+            - { name: kubernetes.connect-timeout, value: "30000" }
+            - { name: kubernetes.read-timeout, value: "30000" }
+            - { name: kubernetes.initial-delay, value: "10000" }
+            - { name: kubernetes.fixed-delay, value: "300000" }
             - { name: management.endpoints.web.exposure.include, value: "info, health, metrics, prometheus" }
             - { name: TZ, value: Europe/Oslo }
           resources:
