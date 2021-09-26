@@ -1,3 +1,3 @@
 # fint-core-explorer
  
-Hello world
+Exports custom metrics for FINT core components.
