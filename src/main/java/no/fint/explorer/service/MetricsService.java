@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,6 +29,9 @@ public class MetricsService {
 
     private final MeterRegistry meterRegistry;
     private final AssetService assetService;
+
+    private final Map<String, AtomicInteger> gauges = new ConcurrentHashMap<>();
+
 
     public MetricsService(MeterRegistry meterRegistry, AssetService assetService) {
         this.meterRegistry = meterRegistry;
@@ -49,9 +56,10 @@ public class MetricsService {
     private void updateHealthMetric(Asset asset) {
         asset.getComponents()
                 .forEach(component -> {
-                    meterRegistry.gauge(HEALTH_METRIC,
+                    updateMetric(HEALTH_METRIC,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
-                            getHealthStatus(component.getHealth()));
+                            getHealthStatus(component.getHealth())
+                    );
                 });
     }
 
@@ -61,9 +69,14 @@ public class MetricsService {
                     component
                             .getCache()
                             .forEach(cacheEntry -> {
-                                meterRegistry.gauge(CACHE_METRIC,
-                                        Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId()), Tag.of("entity", cacheEntry.getName())),
-                                        cacheEntry.getSize());
+                                updateMetric(CACHE_METRIC,
+                                        Arrays.asList(
+                                                Tag.of("asset", asset.getId()),
+                                                Tag.of("component", component.getId()),
+                                                Tag.of("entity", cacheEntry.getName())
+                                        ),
+                                        cacheEntry.getSize()
+                                );
                             });
                 });
     }
@@ -71,13 +84,16 @@ public class MetricsService {
     private void updateAdapterMetric(Asset asset) {
         asset.getComponents()
                 .forEach(component -> {
-                    meterRegistry.gauge(ADAPTER_EVENTS_METRIC_TOTAL,
-                            Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
+                    updateMetric(ADAPTER_EVENTS_METRIC_TOTAL,
+                            Arrays.asList(
+                                    Tag.of("asset", asset.getId()),
+                                    Tag.of("component", component.getId())),
                             component.getClients().stream().mapToInt(SseOrg.SseClient::getEvents).sum());
 
-                    meterRegistry.gauge(ADAPTER_COUNT_METRIC,
+                    updateMetric(ADAPTER_COUNT_METRIC,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
-                            component.getClients().size());
+                            component.getClients().size()
+                    );
                 });
     }
 
@@ -89,5 +105,17 @@ public class MetricsService {
                 .findFirst()
                 .orElse(UNHEALTHY)
                 .equals(HEALTHY) ? 1 : 0;
+    }
+
+    private void updateMetric(String metricType, List<Tag> tags, int value) {
+        String gaugeId = metricType + "-" + tags.stream().map(Tag::getValue).collect(Collectors.joining("-"));
+        gauges.computeIfPresent(gaugeId, (key, v) -> {
+            v.set(value);
+            return v;
+        });
+
+        gauges.putIfAbsent(gaugeId, meterRegistry.gauge(metricType,
+                tags,
+                new AtomicInteger(value)));
     }
 }
