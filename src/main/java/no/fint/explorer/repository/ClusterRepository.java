@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
 import no.fint.explorer.Endpoints;
+import no.fint.explorer.model.CacheEntry;
 import no.fint.explorer.service.ConsumerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,14 +77,14 @@ public class ClusterRepository {
         try {
             Optional<ApiResponse<String>> response = Optional.ofNullable(coreV1Api.connectGetNamespacedServiceProxyWithPathWithHttpInfo(name, namespace, path, null));
 
-            updateMetrics(asset, service, endpoint, response);
+            //updateMetrics(asset, service, endpoint, response);
 
             return response;
 
         } catch (ApiException ex) {
             log.error("{} - {} - {} - {}", asset, service, endpoint, ex.getMessage());
 
-            updateMetrics(asset, service, endpoint, Optional.empty());
+            //updateMetrics(asset, service, endpoint, Optional.empty());
 
             return Optional.empty();
         }
@@ -132,8 +133,22 @@ public class ClusterRepository {
                     Arrays.asList(Tag.of("asset", asset), Tag.of("component", component)),
                     new AtomicInteger(status)));
         }
+        if (endpoint.equals(Endpoints.ADMIN_CACHE_STATUS_ENDPOINT)) {
+            log.info("Updating cache metrics");
+            //meterRegistry.gauge("fint.core.cache")
+        }
     }
 
+//    private CacheEntry toCacheEntry(String data) {
+//        try {
+//            return new ObjectMapper().readValue(data, new TypeReference<CacheEntry>() {
+//            });
+//        } catch (JsonProcessingException ex) {
+//            log.error(ex.getMessage(), ex);
+//
+//            return null;
+//        }
+//    }
     private String getStatus(Optional<ApiResponse<String>> response) {
         return response
                 .map(ApiResponse::getData)

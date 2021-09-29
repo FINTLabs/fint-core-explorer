@@ -40,7 +40,7 @@ public class AssetService {
         return Mono.justOrEmpty(assets.get(id));
     }
 
-    @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
+    //@Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
     @CacheEvict(value = {"consumers", "caches"}, allEntries = true)
     public void update() {
         log.info("Updating...");
