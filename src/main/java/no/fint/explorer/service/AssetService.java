@@ -7,14 +7,15 @@ import no.fint.explorer.model.Asset;
 import no.fint.explorer.model.CacheEntry;
 import no.fint.explorer.model.SseOrg;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -40,11 +41,9 @@ public class AssetService {
         return Mono.justOrEmpty(assets.get(id));
     }
 
-    @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
     @CacheEvict(value = {"consumers", "caches"}, allEntries = true)
     public void update() {
-        log.info("Updating...");
-
+        log.info("Start collect data...");
         providerService.getProviders()
                 .stream()
                 .map(providerService::getSseOrgs)
@@ -55,6 +54,7 @@ public class AssetService {
                 .map(AssetFactory::toAsset)
                 .peek(updateHealthAndCache())
                 .forEach(asset -> assets.put(asset.getId(), asset));
+        log.info("Finished collection data");
     }
 
     private Consumer<Asset> updateHealthAndCache() {

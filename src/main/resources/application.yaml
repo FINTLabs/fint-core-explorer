@@ -5,3 +5,9 @@ kubernetes:
   read-timeout: 30000
   initial-delay: 10000
   fixed-delay: 300000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info, health, metrics, prometheus"
