@@ -35,11 +35,9 @@ public class MetricsService {
     @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
     public void update() {
 
-        log.info("Start collection data...");
         assetService.update();
-        log.info("Finished collection data");
 
-        log.info("Updating metrics...");
+        log.info("Start updating metrics...");
         assetService.getAssets().toStream()
                 .forEach(asset -> {
                     updateHealthMetric(asset);
@@ -51,7 +49,6 @@ public class MetricsService {
 
     private void updateHealthMetric(Asset asset) {
         asset.getComponents()
-                //.map(Asset.Component::getHealth)
                 .forEach(component -> {
                     meterRegistry.gauge(HEALTH_METRIC,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
@@ -61,7 +58,6 @@ public class MetricsService {
 
     private void updateCacheMetric(Asset asset) {
         asset.getComponents()
-                //.map(Asset.Component::getHealth)
                 .forEach(component -> {
                     component
                             .getCache()
@@ -75,7 +71,6 @@ public class MetricsService {
 
     private void updateAdapterMetric(Asset asset) {
         asset.getComponents()
-                //.map(Asset.Component::getHealth)
                 .forEach(component -> {
                     meterRegistry.gauge(ADAPTER_EVENTS_METRIC_TOTAL,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
