@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -52,7 +51,7 @@ public class MetricsService {
                 .forEach(component -> {
                     meterRegistry.gauge(HEALTH_METRIC,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
-                            new AtomicInteger(getHealthStatus(component.getHealth())));
+                            getHealthStatus(component.getHealth()));
                 });
     }
 
@@ -64,7 +63,7 @@ public class MetricsService {
                             .forEach(cacheEntry -> {
                                 meterRegistry.gauge(CACHE_METRIC,
                                         Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId()), Tag.of("entity", cacheEntry.getName())),
-                                        new AtomicInteger(cacheEntry.getSize()));
+                                        cacheEntry.getSize());
                             });
                 });
     }
@@ -74,11 +73,11 @@ public class MetricsService {
                 .forEach(component -> {
                     meterRegistry.gauge(ADAPTER_EVENTS_METRIC_TOTAL,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
-                            new AtomicInteger(component.getClients().stream().mapToInt(SseOrg.SseClient::getEvents).sum()));
+                            component.getClients().stream().mapToInt(SseOrg.SseClient::getEvents).sum());
 
                     meterRegistry.gauge(ADAPTER_COUNT_METRIC,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
-                            new AtomicInteger(component.getClients().size()));
+                            component.getClients().size());
                 });
     }
 
