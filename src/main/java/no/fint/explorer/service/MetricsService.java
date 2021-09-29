@@ -24,7 +24,7 @@ public class MetricsService {
     private final static String UNHEALTHY = "APPLICATION_UNHEALTHY";
     private final static String HEALTH_METRIC = "fint.core.health";
     private final static String CACHE_METRIC = "fint.core.cache";
-    private final static String ADAPTER_COUNT_METRIC = "fint.core.adapter.count";
+    private final static String ADAPTER_CONNECTIONS_METRIC = "fint.core.adapter.connections";
     private final static String ADAPTER_EVENTS_METRIC_TOTAL = "fint.core.adapter.events.total";
 
     private final MeterRegistry meterRegistry;
@@ -90,7 +90,7 @@ public class MetricsService {
                                     Tag.of("component", component.getId())),
                             component.getClients().stream().mapToInt(SseOrg.SseClient::getEvents).sum());
 
-                    updateMetric(ADAPTER_COUNT_METRIC,
+                    updateMetric(ADAPTER_CONNECTIONS_METRIC,
                             Arrays.asList(Tag.of("asset", asset.getId()), Tag.of("component", component.getId())),
                             component.getClients().size()
                     );
