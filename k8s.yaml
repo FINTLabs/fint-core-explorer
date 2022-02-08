@@ -30,7 +30,7 @@ spec:
       serviceAccountName: fint-core-explorer
       containers:
         - name: fint-core-explorer
-          #image: fintlabsacr.azurecr.io/fint-core-explorer:build.${BUILD_NUMBER}_${GIT_COMMIT}
+          image: fintlabsacr.azurecr.io/fint-core-explorer:latest
           env:
             - { name: kubernetes.client, value: in-cluster }
             - { name: kubernetes.namespace, value: default }
