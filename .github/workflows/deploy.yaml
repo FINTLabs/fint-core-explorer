@@ -17,7 +17,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - name: Check out repository 
+        uses: actions/checkout@main
 
       - name: Connect to Azure Container Registry (ACR)
         uses: azure/docker-login@v1
