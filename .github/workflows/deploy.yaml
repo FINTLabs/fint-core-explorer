@@ -2,12 +2,14 @@ name: Deploy
 on:
   push:
     branches:
-      - main
+      - master
 
 env:
   REGISTRY_NAME: fintlabsacr
-  CLUSTER_NAME: aks-beta-fint-2021-11-23
-  CLUSTER_RESOURCE_GROUP: rg-aks-beta
+  BETA_CLUSTER_NAME: aks-beta-fint-2021-11-23
+  BETA_CLUSTER_RESOURCE_GROUP: rg-aks-beta
+  API_CLUSTER_NAME: aks-api-fint-2022-02-08
+  API_CLUSTER_RESOURCE_GROUP: rg-aks-api
   NAMESPACE: default
   APP_NAME: fint-core-explorer
 
@@ -29,14 +31,30 @@ jobs:
           docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
           docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
 
-      - name: Set the target Azure Kubernetes Service (AKS) cluster.
+      - name: Set the target Beta cluster.
         uses: azure/aks-set-context@v1
         with:
           creds: '${{ secrets.AKS_BETA_FINT_GITHUB }}'
-          cluster-name: ${{ env.CLUSTER_NAME }}
-          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+          cluster-name: ${{ env.BETA_CLUSTER_NAME }}
+          resource-group: ${{ env.BETA_CLUSTER_RESOURCE_GROUP }}
 
-      - name: Deploy to AKS
+      - name: Deploy to Beta
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            k8s.yaml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+          namespace: ${{ env.NAMESPACE }}
+
+      - name: Set the target Api cluster.
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AKS_API_FINT_GITHUB }}'
+          cluster-name: ${{ env.API_CLUSTER_NAME }}
+          resource-group: ${{ env.API_CLUSTER_RESOURCE_GROUP }}
+
+      - name: Deploy to Api
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
