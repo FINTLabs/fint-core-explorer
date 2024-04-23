@@ -42,7 +42,7 @@ spec:
             - { name: TZ, value: Europe/Oslo }
           resources:
             limits:
-              memory: "3000Mi"
+              memory: "4000Mi"
               cpu: "500m"
             requests:
               memory: "3000Mi"
