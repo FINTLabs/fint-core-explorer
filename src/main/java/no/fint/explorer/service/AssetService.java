@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -44,42 +45,45 @@ public class AssetService {
     @CacheEvict(value = {"consumers", "caches"}, allEntries = true)
     public void update() {
         log.info("Start collect data...");
+
         providerService.getProviders()
-                .stream()
+                .parallelStream()
                 .map(providerService::getSseOrgs)
                 .flatMap(List::stream)
                 .collect(Collectors.groupingBy(SseOrg::getOrgId))
                 .entrySet()
-                .stream()
+                .parallelStream()
                 .map(AssetFactory::toAsset)
                 .peek(updateHealthAndCache())
                 .forEach(asset -> assets.put(asset.getId(), asset));
-        log.info("Finished collection data");
+
+        log.info("Finished collecting data");
     }
 
     private Consumer<Asset> updateHealthAndCache() {
-        return asset -> asset.getComponents().forEach(component -> {
-            component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
+        return asset ->
+            CompletableFuture.allOf(asset.getComponents().stream()
+                    .map(component -> CompletableFuture.runAsync(() -> {
+                        component.setLastUpdated(ZonedDateTime.now(ZoneId.of("Z")));
 
-            if (component.getClients().isEmpty()) {
-                return;
-            }
+                        if (component.getClients().isEmpty()) {
+                            return;
+                        }
 
-            consumerService.getConsumer(component.getId()).ifPresent(service -> {
-                List<Health> health = consumerService.getHealth(service, asset.getId());
+                        consumerService.getConsumer(component.getId()).ifPresent(service -> {
+                            List<Health> health = consumerService.getHealth(service, asset.getId());
+                            component.setHealth(health);
 
-                component.setHealth(health);
+                            List<CacheEntry> cache = consumerService.getCache(service)
+                                    .getOrDefault(asset.getId(), Collections.emptyMap())
+                                    .entrySet()
+                                    .parallelStream()
+                                    .map(this::updateCacheEntry)
+                                    .collect(Collectors.toList());
 
-                List<CacheEntry> cache = consumerService.getCache(service)
-                        .getOrDefault(asset.getId(), Collections.emptyMap())
-                        .entrySet()
-                        .stream()
-                        .map(this::updateCacheEntry)
-                        .collect(Collectors.toList());
-
-                component.setCache(cache);
-            });
-        });
+                            component.setCache(cache);
+                        });
+                    })).toArray(CompletableFuture[]::new)).join();
     }
 
     private CacheEntry updateCacheEntry(Map.Entry<String, CacheEntry> cacheEntry) {
