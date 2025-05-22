@@ -34,8 +34,8 @@ spec:
           env:
             - { name: kubernetes.client, value: in-cluster }
             - { name: kubernetes.namespace, value: default }
-            - { name: kubernetes.connect-timeout, value: "30000" }
-            - { name: kubernetes.read-timeout, value: "30000" }
+            - { name: kubernetes.connect-timeout, value: "15000" }
+            - { name: kubernetes.read-timeout, value: "15000" }
             - { name: kubernetes.initial-delay, value: "10000" }
             - { name: kubernetes.fixed-delay, value: "300000" }
             - { name: management.endpoints.web.exposure.include, value: "info, health, metrics, prometheus" }
