@@ -72,7 +72,7 @@ public class ClusterRepository {
         try {
             return Optional.ofNullable(coreV1Api.readNamespacedService(name, namespace, null, null, null));
         } catch (ApiException ex) {
-            log.error("{} - {}", name, ex.getResponseBody());
+            log.error("Error getting namespaced service {} with error message: {}", name, ex.getMessage());
 
             return Optional.empty();
         }
@@ -84,7 +84,7 @@ public class ClusterRepository {
                     .map(V1ServiceList::getItems)
                     .orElseGet(Collections::emptyList);
         } catch (ApiException ex) {
-            log.error("{} - {}", label, ex.getResponseBody());
+            log.error("Error getting namespaced service {} with error message: {}", label, ex.getMessage());
 
             return Collections.emptyList();
         }
