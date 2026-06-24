@@ -1,4 +1,4 @@
-package no.fint.explorer.model;
+package no.novari.fint.explorer.model;
 
 import lombok.Data;
 import no.fint.event.model.health.Health;

@@ -1,4 +1,4 @@
-package no.fint.explorer.service;
+package no.novari.fint.explorer.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,9 +8,9 @@ import io.kubernetes.client.openapi.models.V1Service;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.event.model.health.Health;
-import no.fint.explorer.Endpoints;
-import no.fint.explorer.model.CacheEntry;
-import no.fint.explorer.repository.ClusterRepository;
+import no.novari.fint.explorer.Endpoints;
+import no.novari.fint.explorer.model.CacheEntry;
+import no.novari.fint.explorer.repository.ClusterRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 

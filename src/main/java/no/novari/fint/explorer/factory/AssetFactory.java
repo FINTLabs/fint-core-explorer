@@ -1,7 +1,7 @@
-package no.fint.explorer.factory;
+package no.novari.fint.explorer.factory;
 
-import no.fint.explorer.model.Asset;
-import no.fint.explorer.model.SseOrg;
+import no.novari.fint.explorer.model.Asset;
+import no.novari.fint.explorer.model.SseOrg;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 

@@ -1,4 +1,4 @@
-package no.fint.explorer.model;
+package no.novari.fint.explorer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
