@@ -1,11 +1,11 @@
-package no.fint.explorer.service;
+package no.novari.fint.explorer.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.health.Health;
-import no.fint.explorer.factory.AssetFactory;
-import no.fint.explorer.model.Asset;
-import no.fint.explorer.model.CacheEntry;
-import no.fint.explorer.model.SseOrg;
+import no.novari.fint.explorer.factory.AssetFactory;
+import no.novari.fint.explorer.model.Asset;
+import no.novari.fint.explorer.model.CacheEntry;
+import no.novari.fint.explorer.model.SseOrg;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;

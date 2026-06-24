@@ -1,11 +1,11 @@
-package no.fint.explorer.service;
+package no.novari.fint.explorer.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.health.Health;
-import no.fint.explorer.model.Asset;
-import no.fint.explorer.model.SseOrg;
+import no.novari.fint.explorer.model.Asset;
+import no.novari.fint.explorer.model.SseOrg;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 

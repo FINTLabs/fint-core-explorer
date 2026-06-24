@@ -1,8 +1,8 @@
-package no.fint.explorer.controller;
+package no.novari.fint.explorer.controller;
 
-import no.fint.explorer.exception.AssetNotFoundException;
-import no.fint.explorer.model.Asset;
-import no.fint.explorer.service.AssetService;
+import no.novari.fint.explorer.exception.AssetNotFoundException;
+import no.novari.fint.explorer.model.Asset;
+import no.novari.fint.explorer.service.AssetService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

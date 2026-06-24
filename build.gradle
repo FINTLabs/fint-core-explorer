@@ -7,7 +7,7 @@ plugins {
     id 'groovy'
 }
 
-group = 'no.fint'
+group = 'no.novari'
 version = '0.0.1-SNAPSHOT'
 
 java {

@@ -1,4 +1,4 @@
-package no.fint.explorer;
+package no.novari.fint.explorer;
 
 public final class Endpoints {
     public final static String SSE_CLIENTS_ENDPOINT = "/provider/sse/clients";
