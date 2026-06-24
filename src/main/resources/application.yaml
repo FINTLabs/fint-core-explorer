@@ -1,3 +1,22 @@
+fint:
+  components:
+    - administrasjon-fullmakt
+    - administrasjon-kodeverk
+    - administrasjon-organisasjon
+    - administrasjon-personal
+    - arkiv-kodeverk
+    - arkiv-kulturminnevern
+    - arkiv-novark
+    - arkiv-personal
+    - felles-kodeverk
+    - okonomi-faktura
+    - okonomi-kodeverk
+    - utdanning-elev
+    - utdanning-kodeverk
+    - utdanning-timeplan
+    - utdanning-utdanningsprogram
+    - utdanning-vurdering
+
 kubernetes:
   client: kube-config-file
   namespace: default
