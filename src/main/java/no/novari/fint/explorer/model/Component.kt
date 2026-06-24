@@ -11,4 +11,14 @@ value class Component(
 
     val domainName: String get() = value.split("-").first()
     val packageName: String get() = value.split("-").last()
+
+    private val path: String get() = "/$domainName/$packageName"
+
+    fun providerUri(endpoint: String) = "http://provider-$value:$PORT$path$endpoint"
+
+    fun consumerUri(endpoint: String) = "http://consumer-$value:$PORT$path$endpoint"
+
+    private companion object {
+        const val PORT = 8080
+    }
 }

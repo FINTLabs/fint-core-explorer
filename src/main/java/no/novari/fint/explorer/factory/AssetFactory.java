@@ -2,11 +2,12 @@ package no.novari.fint.explorer.factory;
 
 import no.novari.fint.explorer.model.Asset;
 import no.novari.fint.explorer.model.SseOrg;
-import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class AssetFactory {
     private final static String PROVIDER = "/provider";
@@ -41,6 +42,8 @@ public final class AssetFactory {
     private static String getComponentTitle(String path) {
         String title = StringUtils.substringBetween(path, "/", PROVIDER).replaceAll("/", " ");
 
-        return WordUtils.capitalize(title);
+        return Arrays.stream(title.split(" "))
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining(" "));
     }
 }

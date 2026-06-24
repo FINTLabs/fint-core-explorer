@@ -38,9 +38,8 @@ public class MetricsService {
         this.assetService = assetService;
     }
 
-    @Scheduled(initialDelayString = "${kubernetes.initial-delay}", fixedDelayString = "${kubernetes.fixed-delay}")
+    @Scheduled(initialDelayString = "${fint.poll.initial-delay}", fixedDelayString = "${fint.poll.fixed-delay}")
     public void update() {
-
         assetService.update();
 
         log.info("Start updating metrics...");

@@ -24,7 +24,7 @@ class AssetControllerTest {
 
     @Test
     fun `getAssets streams all`() {
-        given(assetService.assets).willReturn(Flux.just(Asset(), Asset()))
+        given(assetService.getAssets()).willReturn(Flux.just(Asset(), Asset()))
 
         StepVerifier.create(controller.assets)
             .expectNextCount(2)

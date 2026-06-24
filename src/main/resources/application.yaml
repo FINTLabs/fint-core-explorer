@@ -1,4 +1,7 @@
 fint:
+  poll:
+    initial-delay: 10000
+    fixed-delay: 300000
   components:
     - administrasjon-fullmakt
     - administrasjon-kodeverk

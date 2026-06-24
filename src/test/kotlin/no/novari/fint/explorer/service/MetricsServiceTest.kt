@@ -98,7 +98,7 @@ class MetricsServiceTest {
     }
 
     private fun update(vararg assets: Asset) {
-        given(assetService.assets).willReturn(Flux.fromArray(assets))
+        given(assetService.getAssets()).willReturn(Flux.fromArray(assets))
         metricsService.update()
     }
 
