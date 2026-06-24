@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
+// TODO: Map out which services use this endpoint & what its used for
 @RestController
 @RequestMapping("assets")
 public class AssetController {
