@@ -4,7 +4,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.3.21"
     id("io.spring.dependency-management") version "1.1.7"
     java
-    groovy
 }
 
 group = "no.novari"
@@ -46,7 +45,6 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.spockframework:spock-spring:1.3-groovy-2.5")
 }
 
 tasks.test {
