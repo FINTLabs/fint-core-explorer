@@ -1,4 +1,4 @@
-package no.novari.fint.explorer.configuration;
+package no.novari.fint.explorer.config;
 
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
