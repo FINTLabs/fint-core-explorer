@@ -1,13 +1,21 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.5'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '4.1.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.3.21'
+    id 'org.jetbrains.kotlin.plugin.spring' version '2.3.21'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
     id 'groovy'
 }
 
 group = 'no.fint'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
 jar {
     enabled = false
 }
