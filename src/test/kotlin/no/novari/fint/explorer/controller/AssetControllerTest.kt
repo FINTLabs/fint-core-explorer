@@ -79,6 +79,6 @@ class AssetControllerTest {
 
     private fun asset(id: String, vararg componentIds: String) = Asset().apply {
         this.id = id
-        componentIds.forEach { cid -> components.add(Asset.Component().apply { this.id = cid }) }
+        componentIds.forEach { cid -> components.add(Asset.ComponentStatus().apply { this.id = cid }) }
     }
 }

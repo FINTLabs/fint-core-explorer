@@ -24,8 +24,8 @@ public final class AssetFactory {
         return asset;
     }
 
-    private static Asset.Component toComponent(SseOrg sseOrg) {
-        Asset.Component component = new Asset.Component();
+    private static Asset.ComponentStatus toComponent(SseOrg sseOrg) {
+        Asset.ComponentStatus component = new Asset.ComponentStatus();
 
         component.setId(getComponentId(sseOrg.getPath()));
         component.setTitle(getComponentTitle(sseOrg.getPath()));

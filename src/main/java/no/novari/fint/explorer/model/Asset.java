@@ -10,10 +10,10 @@ import java.util.List;
 @Data
 public class Asset {
     private String id;
-    private List<Component> components = new ArrayList<>();
+    private List<ComponentStatus> components = new ArrayList<>();
 
     @Data
-    public static class Component {
+    public static class ComponentStatus {
         private String id;
         private String title;
         private ZonedDateTime lastUpdated;

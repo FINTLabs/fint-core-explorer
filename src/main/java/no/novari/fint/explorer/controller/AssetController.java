@@ -31,7 +31,7 @@ public class AssetController {
     }
 
     @GetMapping("{assetId}/components")
-    public Flux<Asset.Component> getComponents(@PathVariable String assetId, @RequestParam(required = false) String id) {
+    public Flux<Asset.ComponentStatus> getComponents(@PathVariable String assetId, @RequestParam(required = false) String id) {
         return getAsset(assetId)
                 .flatMapIterable(Asset::getComponents)
                 .filter(component -> Optional.ofNullable(id)

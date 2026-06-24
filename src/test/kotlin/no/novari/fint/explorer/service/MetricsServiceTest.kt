@@ -107,12 +107,12 @@ class MetricsServiceTest {
             .tags("asset", asset, "component", component)
             .gauge().value()
 
-    private fun asset(id: String, vararg components: Asset.Component) = Asset().apply {
+    private fun asset(id: String, vararg components: Asset.ComponentStatus) = Asset().apply {
         this.id = id
         this.components = components.toMutableList()
     }
 
-    private fun component(id: String) = Asset.Component().apply { this.id = id }
+    private fun component(id: String) = Asset.ComponentStatus().apply { this.id = id }
 
     private fun cacheEntry(name: String, size: Int) = CacheEntry().apply {
         this.name = name
