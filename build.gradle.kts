@@ -35,9 +35,9 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.3")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("io.kubernetes:client-java:10.0.0")
-    implementation("org.springdoc:springdoc-openapi-webflux-ui:1.5.5")
     implementation("no.fint:fint-event-model:3.0.1")
 
     compileOnly("org.projectlombok:lombok")
