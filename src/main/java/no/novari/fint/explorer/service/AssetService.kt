@@ -10,8 +10,6 @@ import no.novari.fint.explorer.model.Asset
 import no.novari.fint.explorer.model.Component
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.ConcurrentSkipListMap
@@ -26,9 +24,9 @@ class AssetService(
 
     private val assets = ConcurrentSkipListMap<String, Asset>()
 
-    fun getAssets(): Flux<Asset> = Flux.fromIterable(assets.values)
+    fun getAssets(): List<Asset> = assets.values.toList()
 
-    fun getAsset(id: String): Mono<Asset> = Mono.justOrEmpty(assets[id])
+    fun getAsset(id: String): Asset? = assets[id]
 
     fun update() {
         log.info("Start collect data...")

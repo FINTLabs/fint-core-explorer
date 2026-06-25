@@ -43,7 +43,7 @@ public class MetricsService {
         assetService.update();
 
         log.info("Start updating metrics...");
-        assetService.getAssets().toStream()
+        assetService.getAssets()
                 .forEach(asset -> {
                     updateHealthMetric(asset);
                     updateCacheMetric(asset);

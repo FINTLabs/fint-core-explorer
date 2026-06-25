@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.mock
-import reactor.core.publisher.Flux
 
 private const val HEALTHY = "APPLICATION_HEALTHY"
 private const val UNHEALTHY = "APPLICATION_UNHEALTHY"
@@ -98,7 +97,7 @@ class MetricsServiceTest {
     }
 
     private fun update(vararg assets: Asset) {
-        given(assetService.getAssets()).willReturn(Flux.fromArray(assets))
+        given(assetService.getAssets()).willReturn(assets.toList())
         metricsService.update()
     }
 
