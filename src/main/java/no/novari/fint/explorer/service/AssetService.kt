@@ -5,7 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import no.novari.fint.explorer.config.FintProperties
-import no.novari.fint.explorer.factory.AssetFactory
+import no.novari.fint.explorer.factory.toAsset
 import no.novari.fint.explorer.model.Asset
 import no.novari.fint.explorer.model.Component
 import org.slf4j.LoggerFactory
@@ -44,7 +44,7 @@ class AssetService(
             .groupBy { it.orgId }
             .map { entry ->
                 async {
-                    val asset = AssetFactory.toAsset(entry)
+                    val asset = entry.toAsset()
                     asset.components.map { status -> async { enrich(asset.id, status) } }.awaitAll()
                     asset
                 }

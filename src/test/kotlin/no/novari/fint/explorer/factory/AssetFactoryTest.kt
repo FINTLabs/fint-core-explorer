@@ -9,7 +9,7 @@ class AssetFactoryTest {
 
     @Test
     fun `uses orgId as asset id`() {
-        val asset = AssetFactory.toAsset(java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning/vurdering/provider/sse/clients"))))
+        val asset = java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning/vurdering/provider/sse/clients"))).toAsset()
 
         assertThat(asset.id).isEqualTo("fylke-1")
     }
@@ -24,21 +24,21 @@ class AssetFactoryTest {
             ),
         )
 
-        val asset = AssetFactory.toAsset(entry)
+        val asset = entry.toAsset()
 
         assertThat(asset.components).hasSize(2)
     }
 
     @Test
     fun `derives component id from path between root and provider`() {
-        val asset = AssetFactory.toAsset(java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning/vurdering/provider/sse/clients"))))
+        val asset = java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning/vurdering/provider/sse/clients"))).toAsset()
 
         assertThat(asset.components.first().id).isEqualTo("utdanning-vurdering")
     }
 
     @Test
     fun `derives capitalized spaced title from path`() {
-        val asset = AssetFactory.toAsset(java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning/vurdering/provider/sse/clients"))))
+        val asset = java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning/vurdering/provider/sse/clients"))).toAsset()
 
         assertThat(asset.components.first().title).isEqualTo("Utdanning Vurdering")
     }
@@ -48,16 +48,32 @@ class AssetFactoryTest {
         val org = sseOrg("/utdanning/vurdering/provider/sse/clients")
         org.clients = listOf(client(3), client(5))
 
-        val asset = AssetFactory.toAsset(java.util.Map.entry("fylke-1", listOf(org)))
+        val asset = java.util.Map.entry("fylke-1", listOf(org)).toAsset()
 
         assertThat(asset.components.first().clients).hasSize(2)
+    }
+
+    @Test
+    fun `keeps interior empty segment from double slash like Java`() {
+        val asset = java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning//vurdering/provider/sse"))).toAsset()
+
+        assertThat(asset.components.first().id).isEqualTo("utdanning--vurdering")
+        assertThat(asset.components.first().title).isEqualTo("Utdanning  Vurdering")
+    }
+
+    @Test
+    fun `drops trailing empty segment like Java`() {
+        val asset = java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning//provider/sse"))).toAsset()
+
+        assertThat(asset.components.first().id).isEqualTo("utdanning-")
+        assertThat(asset.components.first().title).isEqualTo("Utdanning")
     }
 
     @Test
     fun `throws when path has no provider segment`() {
         val entry = java.util.Map.entry("fylke-1", listOf(sseOrg("/utdanning/vurdering")))
 
-        assertThrows<NullPointerException> { AssetFactory.toAsset(entry) }
+        assertThrows<NullPointerException> { entry.toAsset() }
     }
 
     private fun sseOrg(path: String) = SseOrg().apply { this.path = path }
