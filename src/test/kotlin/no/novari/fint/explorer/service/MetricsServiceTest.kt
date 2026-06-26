@@ -6,6 +6,7 @@ import no.novari.fint.explorer.model.Asset
 import no.novari.fint.explorer.model.CacheEntry
 import no.novari.fint.explorer.model.SseOrg
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -96,6 +97,36 @@ class MetricsServiceTest {
         ).isEqualTo(2.0)
     }
 
+    @Test
+    fun `cache last-updated metric reports epoch seconds`() {
+        val component = component("utdanning-vurdering").apply {
+            cache = listOf(cacheEntry("elev", 42, "2026-06-26T12:00:00Z"))
+        }
+
+        update(asset("fylke-1", component))
+
+        assertThat(
+            registry.get("fint.core.cache.last.updated.seconds")
+                .tags("asset", "fylke-1", "component", "utdanning-vurdering", "entity", "elev")
+                .gauge().value(),
+        ).isEqualTo(java.time.ZonedDateTime.parse("2026-06-26T12:00:00Z").toEpochSecond().toDouble())
+    }
+
+    @Test
+    fun `cache last-updated metric is absent when lastUpdated is null`() {
+        val component = component("utdanning-vurdering").apply {
+            cache = listOf(cacheEntry("elev", 42))
+        }
+
+        update(asset("fylke-1", component))
+
+        assertThatThrownBy {
+            registry.get("fint.core.cache.last.updated.seconds")
+                .tags("asset", "fylke-1", "component", "utdanning-vurdering", "entity", "elev")
+                .gauge()
+        }.isInstanceOf(io.micrometer.core.instrument.search.MeterNotFoundException::class.java)
+    }
+
     private fun update(vararg assets: Asset) {
         given(assetService.getAssets()).willReturn(assets.toList())
         metricsService.update()
@@ -113,9 +144,10 @@ class MetricsServiceTest {
 
     private fun component(id: String) = Asset.ComponentStatus().apply { this.id = id }
 
-    private fun cacheEntry(name: String, size: Int) = CacheEntry().apply {
+    private fun cacheEntry(name: String, size: Int, lastUpdated: String? = null) = CacheEntry().apply {
         this.name = name
         this.size = size
+        lastUpdated?.let { setLastUpdated(it) }
     }
 
     private fun client(events: Int) = SseOrg.SseClient().apply { this.events = events }
