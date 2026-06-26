@@ -4,11 +4,11 @@ import no.novari.fint.explorer.exception.AssetNotFoundException;
 import no.novari.fint.explorer.model.Asset;
 import no.novari.fint.explorer.service.AssetService;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 
+// TODO: Map out which services use this endpoint & what its used for
 @RestController
 @RequestMapping("assets")
 public class AssetController {
@@ -19,22 +19,25 @@ public class AssetController {
     }
 
     @GetMapping
-    public Flux<Asset> getAssets() {
+    public List<Asset> getAssets() {
         return assetService.getAssets();
     }
 
     @GetMapping("{assetId}")
-    public Mono<Asset> getAsset(@PathVariable String assetId) {
-        return assetService.getAsset(assetId)
-                .switchIfEmpty(Mono.error(AssetNotFoundException::new));
+    public Asset getAsset(@PathVariable String assetId) {
+        Asset asset = assetService.getAsset(assetId);
+        if (asset == null) {
+            throw new AssetNotFoundException();
+        }
+        return asset;
     }
 
     @GetMapping("{assetId}/components")
-    public Flux<Asset.Component> getComponents(@PathVariable String assetId, @RequestParam(required = false) String id) {
-        return getAsset(assetId)
-                .flatMapIterable(Asset::getComponents)
+    public List<Asset.ComponentStatus> getComponents(@PathVariable String assetId, @RequestParam(required = false) String id) {
+        return getAsset(assetId).getComponents().stream()
                 .filter(component -> Optional.ofNullable(id)
                         .map(component.getId()::contains)
-                        .orElse(true));
+                        .orElse(true))
+                .toList();
     }
 }

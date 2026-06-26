@@ -1,9 +1,9 @@
-FROM gradle:7.2.0-jdk11 as builder
-USER root
+FROM eclipse-temurin:25-jdk AS builder
+WORKDIR /workspace
 COPY . .
-RUN gradle --no-daemon build
+RUN chmod +x gradlew && ./gradlew --no-daemon clean bootJar
 
-FROM gcr.io/distroless/java:11
-ENV JAVA_TOOL_OPTIONS -XX:+ExitOnOutOfMemoryError
-COPY --from=builder /home/gradle/build/libs/fint-core-explorer-*.jar /data/fint-core-explorer.jar
-CMD ["/data/fint-core-explorer.jar"]
+FROM eclipse-temurin:25-jre
+ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"
+COPY --from=builder /workspace/build/libs/fint-core-explorer-*.jar /data/fint-core-explorer.jar
+ENTRYPOINT ["java", "-jar", "/data/fint-core-explorer.jar"]

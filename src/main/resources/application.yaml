@@ -1,10 +1,24 @@
-kubernetes:
-  client: kube-config-file
-  namespace: default
-  connect-timeout: 15000
-  read-timeout: 15000
-  initial-delay: 10000
-  fixed-delay: 300000
+fint:
+  poll:
+    initial-delay: 10000
+    fixed-delay: 300000
+  components:
+    - administrasjon-fullmakt
+    - administrasjon-kodeverk
+    - administrasjon-organisasjon
+    - administrasjon-personal
+    - arkiv-kodeverk
+    - arkiv-kulturminnevern
+    - arkiv-novark
+    - arkiv-personal
+    - felles-kodeverk
+    - okonomi-faktura
+    - okonomi-kodeverk
+    - utdanning-elev
+    - utdanning-kodeverk
+    - utdanning-timeplan
+    - utdanning-utdanningsprogram
+    - utdanning-vurdering
 
 management:
   endpoints:

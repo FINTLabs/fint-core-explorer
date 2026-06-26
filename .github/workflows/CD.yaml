@@ -34,7 +34,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch,enable=false
-            type=ref,event=tag,enable=true,format=short,priority=10
+            type=semver,pattern={{version}},priority=10
             type=sha,enable=true,priority=100,prefix=sha-,suffix=,format=short
             latest
 
