@@ -1,5 +1,5 @@
 plugins {
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.2.0"
     id("org.jetbrains.kotlin.jvm") version "2.3.21"
     id("org.jetbrains.kotlin.plugin.spring") version "2.3.21"
     id("org.jetbrains.kotlin.plugin.lombok") version "2.3.21"
@@ -36,7 +36,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.1")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
